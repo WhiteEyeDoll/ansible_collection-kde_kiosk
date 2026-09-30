@@ -1,0 +1,10 @@
+---
+firefox_kiosk_platform:
+  supported_distributions:
+    AlmaLinux: ['10']
+    RedHat: ['10']
+  package_tasks: platforms/RedHat.yml
+  packages:
+    - firefox
+  executable: /usr/bin/firefox
+  policies_directory: /etc/firefox/policies

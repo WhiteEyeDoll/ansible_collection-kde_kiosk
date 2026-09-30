@@ -1,0 +1,53 @@
+---
+argument_specs:
+  main:
+    short_description: Configure the KDE Wayland kiosk base
+    options: &kiosk_options
+      kiosk_user:
+        type: str
+        default: kiosk
+        description: Dedicated kiosk account, separate from the SSH administrator.
+      kiosk_home:
+        type: path
+        default: "/home/{{ kiosk_user }}"
+        description: Home directory, which must be /home/USERNAME for the kiosk account.
+      kiosk_activate:
+        type: bool
+        default: true
+        description: Restart the graphical session when managed configuration or packages change.
+      kiosk_app_restart_delay:
+        type: int
+        default: 5
+        description: Positive number of seconds between application restarts.
+      kiosk_keyboard_desktop_file:
+        type: path
+        default: /usr/share/applications/org.kde.plasma.keyboard.desktop
+        description: Desktop entry used by KWin to launch the on-screen keyboard.
+      kiosk_plasma_executable:
+        type: path
+        default: /usr/bin/startplasma-wayland
+        description: Executable that starts the Plasma Wayland session.
+      kiosk_color_schemes_directory:
+        type: path
+        default: /usr/share/color-schemes
+        description: Directory containing the installed Breeze colour palettes.
+      kiosk_theme:
+        type: str
+        default: dark
+        choices: [dark, light]
+        description: Breeze appearance for the kiosk session.
+      kiosk_cursor_hide_timeout:
+        type: int
+        default: 1
+        description: Idle seconds before hiding the cursor, from 0 (disabled) to 2147483.
+      kiosk_display_off_timeout:
+        type: int
+        default: 600
+        description: Positive number of idle seconds before display power-off without locking.
+      kiosk_virtual_keyboard:
+        type: bool
+        default: true
+        description: Enable Plasma Keyboard for touchscreen text entry.
+  validate:
+    short_description: Validate kiosk inputs without provisioning
+    options: *kiosk_options

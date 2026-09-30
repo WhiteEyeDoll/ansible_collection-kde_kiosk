@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+[$i]
+{% for profile in ['AC', 'Battery', 'LowBattery'] %}
+[{{ profile }}][Display]
+DimDisplayWhenIdle=false
+TurnOffDisplayWhenIdle=true
+TurnOffDisplayIdleTimeoutSec={{ kiosk_display_off_timeout | int }}
+LockBeforeTurnOffDisplay=false
+
+[{{ profile }}][SuspendAndShutdown]
+AutoSuspendAction=0
+PowerButtonAction=0
+LidAction=0
+
+{% endfor %}

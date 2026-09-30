@@ -1,0 +1,43 @@
+---
+name: Lint
+
+"on":
+  pull_request:
+  push:
+    branches: ['**']
+
+permissions:
+  contents: read
+
+jobs:
+  ansible-lint:
+    if: >-
+      ${{ !github.event.repository.fork &&
+      (github.event_name != 'pull_request' ||
+       github.event.pull_request.head.repo.full_name == github.repository) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+
+      - name: Install Ansible lint
+        run: python -m pip install ansible-lint
+
+      - name: Install local collection
+        run: |
+          mkdir -p dist
+          ansible-galaxy collection build --output-path dist --force
+          ansible-galaxy collection install dist/*.tar.gz --force --offline
+
+      - name: Lint collection
+        run: >-
+          ansible-lint --offline --profile basic
+          playbooks roles examples meta galaxy.yml

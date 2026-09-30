@@ -1,0 +1,39 @@
+---
+argument_specs:
+  validate:
+    short_description: Validate Firefox inputs without provisioning
+    options: &firefox_options
+      firefox_kiosk_urls:
+        type: list
+        elements: str
+        default: []
+        description: Nonempty list of HTTP(S) startup pages, in tab order.
+      firefox_kiosk_private:
+        type: bool
+        default: false
+        description: Use a private session for all startup tabs.
+      firefox_kiosk_touch_tabs:
+        type: bool
+        default: "{{ firefox_kiosk_urls | length > 1 }}"
+        description: Show a persistent tab strip with large touch targets.
+      firefox_kiosk_allowed_sites:
+        type: list
+        elements: str
+        default: []
+        description: WebsiteFilter exceptions, including required authentication redirects; empty allows all sites.
+      firefox_kiosk_policy_overrides:
+        type: dict
+        default: {}
+        description: Enterprise policy overrides merged recursively over the managed defaults.
+  main:
+    short_description: Configure Firefox for the kiosk session
+    options:
+      <<: *firefox_options
+      kiosk_user:
+        type: str
+        required: true
+        description: Kiosk account provided by the base role.
+      kiosk_home:
+        type: path
+        required: true
+        description: Kiosk home directory provided by the base role.

@@ -1,0 +1,7 @@
+---
+- name: Configure the KDE kiosk base without an application
+  hosts: kiosks
+  become: true
+  gather_facts: true
+  roles:
+    - role: whiteeyedoll.kde_kiosk.kiosk

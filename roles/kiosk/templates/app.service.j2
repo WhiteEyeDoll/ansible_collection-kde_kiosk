@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Kiosk application
+PartOf=graphical-session.target
+After=plasma-core.target
+ConditionUser={{ kiosk_user }}
+ConditionPathIsExecutable=/usr/local/libexec/kde-kiosk-app
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Environment=XDG_CONFIG_DIRS=/etc/kde-kiosk/xdg:/etc/xdg
+ExecStart=/usr/local/libexec/kde-kiosk-app
+Restart=always
+RestartSec={{ kiosk_app_restart_delay }}
+TimeoutStopSec=15
+UMask=0077
+
+[Install]
+WantedBy=plasma-workspace.target

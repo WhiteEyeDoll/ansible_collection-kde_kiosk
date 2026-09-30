@@ -1,0 +1,10 @@
+---
+firefox_kiosk_urls: []
+firefox_kiosk_private: false
+
+firefox_kiosk_touch_tabs: "{{ firefox_kiosk_urls | length > 1 }}"
+
+# Empty allows all sites; include authentication redirects when restricting access.
+firefox_kiosk_allowed_sites: []
+
+firefox_kiosk_policy_overrides: {}

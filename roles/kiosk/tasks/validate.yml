@@ -1,0 +1,43 @@
+---
+- name: Load and validate the distribution profile
+  ansible.builtin.import_tasks: platform.yml
+
+- name: Require systemd for the kiosk session
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['service_mgr'] == 'systemd'
+    fail_msg: The kiosk session requires systemd.
+
+- name: Validate kiosk account and service inputs
+  ansible.builtin.assert:
+    that:
+      - kiosk_user is match('^[a-z_][a-z0-9_-]{0,30}\Z')
+      - kiosk_user not in ['root', ansible_user | default('root')]
+      - kiosk_home == '/home/' ~ kiosk_user
+      - kiosk_app_restart_delay | int >= 1
+      - kiosk_app_restart_delay | string is match('^[0-9]+\Z')
+      - kiosk_activate is boolean
+    fail_msg: >-
+      Use a dedicated kiosk account, separate from the SSH administrator, its
+      /home/USERNAME directory, and a positive integer restart delay.
+
+- name: Validate cursor hide timeout
+  ansible.builtin.assert:
+    that:
+      - kiosk_cursor_hide_timeout | string is match('^[0-9]+\Z')
+      - kiosk_cursor_hide_timeout | int >= 0
+      - kiosk_cursor_hide_timeout | int <= 2147483
+    fail_msg: Set kiosk_cursor_hide_timeout to whole seconds between 0 (disabled) and 2147483.
+
+- name: Validate display idle timeout
+  ansible.builtin.assert:
+    that:
+      - kiosk_display_off_timeout | string is match('^[0-9]+\Z')
+      - kiosk_display_off_timeout | int >= 1
+    fail_msg: Set kiosk_display_off_timeout to a positive integer number of seconds.
+
+- name: Validate the on-screen keyboard setting
+  ansible.builtin.assert:
+    that:
+      - kiosk_virtual_keyboard is boolean
+    fail_msg: Set kiosk_virtual_keyboard to true or false.

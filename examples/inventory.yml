@@ -1,0 +1,17 @@
+---
+all:
+  children:
+    kiosks:
+      vars:
+        kiosk_app_role: whiteeyedoll.kde_kiosk.firefox
+        firefox_kiosk_urls:
+          - https://example.org/
+          - https://example.org/status
+        kiosk_activate: true
+        kiosk_theme: dark
+        kiosk_cursor_hide_timeout: 1
+        kiosk_display_off_timeout: 600
+      hosts:
+        rack_kiosk:
+          ansible_host: 192.0.2.10
+          ansible_user: almalinux

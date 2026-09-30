@@ -1,0 +1,7 @@
+---
+- name: Apply kiosk session changes
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/activate.yml"
+  listen: Kiosk session changed
+  when:
+    - kiosk_activate
+    - not ansible_check_mode

@@ -1,0 +1,42 @@
+# {{ ansible_managed }}
+[General][$i]
+ColorScheme={{ 'BreezeDark' if kiosk_theme == 'dark' else 'BreezeLight' }}
+
+[KDE][$i]
+LookAndFeelPackage={{ 'org.kde.breezedark.desktop' if kiosk_theme == 'dark' else 'org.kde.breeze.desktop' }}
+widgetStyle=Breeze
+
+[Icons][$i]
+Theme={{ 'breeze-dark' if kiosk_theme == 'dark' else 'breeze' }}
+
+{# Existing per-user colour groups take precedence over ColorScheme alone. #}
+{% set palette = namespace(copy=false) %}
+{% for line in (kiosk_color_scheme.content | b64decode).splitlines() %}
+{% if line.startswith('[') %}
+{% set palette.copy = line.startswith('[Colors:') or line.startswith('[ColorEffects:') or line == '[WM]' %}
+{% endif %}
+{% if palette.copy %}
+{{ line ~ '[$i]' if line.startswith('[') else line }}
+{% endif %}
+{% endfor %}
+
+[KDE Action Restrictions][$i]
+shell_access=false
+run_command=false
+action/run_command=false
+run_desktop_files=false
+logout=false
+action/lock_screen=false
+action/start_new_session=false
+action/switch_user=false
+action/options_configure=false
+action/options_configure_keybinding=false
+action/configdesktop=false
+action/kwin_rmb=false
+custom_config=false
+ghns=false
+plasma/allow_configure_when_locked=false
+plasma/containment_actions=false
+plasma/plasmashell/unlockedDesktop=false
+plasma-desktop/scripting_console=false
+plasma-desktop/add_activities=false

@@ -1,0 +1,29 @@
+---
+- name: Configure Plasma Login Manager autologin
+  ansible.builtin.template:
+    src: plasmalogin.conf.j2
+    dest: /etc/plasmalogin.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Kiosk session changed
+
+- name: Gather display manager service state
+  ansible.builtin.service_facts:
+
+- name: Enable Plasma Login Manager at boot
+  ansible.builtin.systemd_service:
+    name: plasmalogin.service
+    enabled: true
+    force: true
+    daemon_reload: true
+  when: not ansible_check_mode or 'plasmalogin.service' in ansible_facts['services']
+  notify: Kiosk session changed
+
+- name: Select graphical startup
+  ansible.builtin.file:
+    src: /usr/lib/systemd/system/graphical.target
+    dest: /etc/systemd/system/default.target
+    state: link
+    force: true
+  notify: Kiosk session changed

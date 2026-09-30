@@ -1,0 +1,7 @@
+#!/bin/sh
+# {{ ansible_managed }}
+set -eu
+export MOZ_ENABLE_WAYLAND=1
+# Route text input to the compositor's on-screen keyboard.
+export GTK_IM_MODULE=wayland
+exec {{ firefox_kiosk_platform.executable | quote }} --no-remote --profile {{ (kiosk_home ~ '/.mozilla/kiosk') | quote }} --kiosk{% for url in firefox_kiosk_urls %} {{ url | quote }}{% endfor %}

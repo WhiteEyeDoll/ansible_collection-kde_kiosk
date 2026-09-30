@@ -1,0 +1,52 @@
+/* {{ ansible_managed }} */
+{% if firefox_kiosk_touch_tabs %}
+:root {
+  --tab-min-height: 56px !important;
+  --tabstrip-min-height: 56px !important;
+  --tab-block-margin: 0px !important;
+}
+
+#navigator-toolbox {
+  margin-top: 0 !important;
+}
+
+#TabsToolbar {
+  min-height: 56px !important;
+  -moz-window-dragging: no-drag !important;
+}
+
+.tabbrowser-tab:not([pinned]) {
+  min-width: 160px !important;
+  max-width: none !important;
+  font-size: 18px !important;
+}
+
+.tab-content {
+  padding-inline: 16px !important;
+}
+
+/* display:none prevents URL bar initialization in Firefox ESR 140. */
+#nav-bar,
+#urlbar-container {
+  visibility: collapse !important;
+}
+
+#toolbar-menubar,
+#PersonalToolbar,
+#sidebar-main,
+#sidebar-box,
+#sidebar-splitter,
+#tabs-newtab-button,
+#new-tab-button,
+#alltabs-button,
+#firefox-view-button,
+#private-browsing-indicator-with-label,
+.private-browsing-indicator,
+.titlebar-buttonbox-container,
+.titlebar-spacer,
+.tab-close-button,
+#context_tab,
+#toolbar-context-menu {
+  display: none !important;
+}
+{% endif %}

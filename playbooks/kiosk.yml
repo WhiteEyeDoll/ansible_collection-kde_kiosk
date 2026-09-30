@@ -1,0 +1,26 @@
+---
+- name: Configure KDE kiosk machines
+  hosts: kiosks
+  become: true
+  gather_facts: true
+  pre_tasks:
+    - name: Validate the selected app role
+      ansible.builtin.assert:
+        that:
+          - >-
+            kiosk_app_role | default('whiteeyedoll.kde_kiosk.firefox')
+            is match('^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*\Z')
+
+    - name: Validate Firefox settings before changing the host
+      ansible.builtin.import_role:
+        name: whiteeyedoll.kde_kiosk.firefox
+        tasks_from: validate
+      when: kiosk_app_role | default('whiteeyedoll.kde_kiosk.firefox') == 'whiteeyedoll.kde_kiosk.firefox'
+
+  roles:
+    - role: whiteeyedoll.kde_kiosk.kiosk
+
+  tasks:
+    - name: Configure the selected kiosk application
+      ansible.builtin.include_role:
+        name: "{{ kiosk_app_role | default('whiteeyedoll.kde_kiosk.firefox') }}"

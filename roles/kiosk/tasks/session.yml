@@ -1,0 +1,62 @@
+---
+- name: Create the kiosk primary group
+  ansible.builtin.group:
+    name: "{{ kiosk_user }}"
+    state: present
+
+- name: Create an unprivileged kiosk account
+  ansible.builtin.user:
+    name: "{{ kiosk_user }}"
+    group: "{{ kiosk_user }}"
+    groups: []
+    append: false
+    home: "{{ kiosk_home }}"
+    create_home: true
+    shell: /bin/bash
+    password_lock: true
+    state: present
+  notify: Kiosk session changed
+
+- name: Create root-managed kiosk directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - /etc/kde-kiosk
+    - /etc/kde-kiosk/xdg
+    - /etc/systemd/user
+    - /etc/systemd/user/plasma-workspace.target.wants
+    - /usr/local/libexec
+    - /usr/share/wayland-sessions
+
+- name: Install the dedicated kiosk session and app supervisor
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+    validate: "{{ '/bin/sh -n %s' if item.src == 'session.sh.j2' else omit }}"
+  loop:
+    - src: session.sh.j2
+      dest: /usr/local/libexec/kde-kiosk-session
+      mode: '0755'
+    - src: session.desktop.j2
+      dest: /usr/share/wayland-sessions/kde-kiosk.desktop
+      mode: '0644'
+    - src: app.service.j2
+      dest: /etc/systemd/user/kde-kiosk-app.service
+      mode: '0644'
+  notify: Kiosk session changed
+
+- name: Start the app supervisor with Plasma
+  ansible.builtin.file:
+    src: /etc/systemd/user/kde-kiosk-app.service
+    dest: /etc/systemd/user/plasma-workspace.target.wants/kde-kiosk-app.service
+    state: link
+    owner: root
+    group: root
+  notify: Kiosk session changed

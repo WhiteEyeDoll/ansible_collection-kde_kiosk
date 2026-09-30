@@ -1,0 +1,6 @@
+---
+- name: Install Firefox
+  ansible.builtin.dnf:
+    name: "{{ firefox_kiosk_platform.packages }}"
+    state: present
+  notify: Kiosk session changed

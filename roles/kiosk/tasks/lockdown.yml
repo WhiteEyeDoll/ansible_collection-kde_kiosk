@@ -1,0 +1,73 @@
+---
+- name: Read the installed Breeze colour palette
+  ansible.builtin.slurp:
+    src: "{{ kiosk_color_schemes_directory }}/Breeze{{ 'Dark' if kiosk_theme == 'dark' else 'Light' }}.colors"
+  register: kiosk_color_scheme
+
+- name: Install immutable configuration for the dedicated kiosk session
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/kde-kiosk/xdg/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - kdeglobals
+    - plasmarc
+    - kwinrc
+    - ksmserverrc
+    - kscreenlockerrc
+    - powerdevilrc
+    - plasma-org.kde.plasma.desktop-appletsrc
+  notify: Kiosk session changed
+
+- name: Create the kiosk configuration directory
+  ansible.builtin.file:
+    path: "{{ kiosk_home }}/.config"
+    state: directory
+    owner: "{{ kiosk_user }}"
+    group: "{{ kiosk_user }}"
+    mode: '0700'
+
+# Plasma opens its layout with KConfig::SimpleConfig, without XDG cascading.
+- name: Select the managed desktop layout without panels
+  ansible.builtin.file:
+    src: /etc/kde-kiosk/xdg/plasma-org.kde.plasma.desktop-appletsrc
+    dest: "{{ kiosk_home }}/.config/plasma-org.kde.plasma.desktop-appletsrc"
+    state: link
+    force: true
+    follow: false
+    owner: root
+    group: root
+  notify: Kiosk session changed
+
+- name: Create service restriction directories
+  ansible.builtin.file:
+    path: "/etc/systemd/user/{{ item }}.d"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - plasma-krunner.service
+    - plasma-kglobalaccel.service
+
+- name: Restrict desktop launchers and global shortcuts for the kiosk user
+  ansible.builtin.template:
+    src: restricted-service.conf.j2
+    dest: "/etc/systemd/user/{{ item }}.d/50-kde-kiosk.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - plasma-krunner.service
+    - plasma-kglobalaccel.service
+  notify: Kiosk session changed
+
+- name: Deny privileged desktop actions for the kiosk account
+  ansible.builtin.template:
+    src: polkit.rules.j2
+    dest: /etc/polkit-1/rules.d/00-kde-kiosk.rules
+    owner: root
+    group: root
+    mode: '0644'

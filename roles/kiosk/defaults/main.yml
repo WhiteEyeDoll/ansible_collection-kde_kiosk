@@ -1,0 +1,22 @@
+---
+kiosk_user: kiosk
+kiosk_home: "/home/{{ kiosk_user }}"
+
+# Restart on configuration changes; false defers activation until reboot.
+kiosk_activate: true
+kiosk_app_restart_delay: 5
+
+kiosk_keyboard_desktop_file: /usr/share/applications/org.kde.plasma.keyboard.desktop
+kiosk_plasma_executable: /usr/bin/startplasma-wayland
+kiosk_color_schemes_directory: /usr/share/color-schemes
+
+# dark or light.
+kiosk_theme: dark
+
+# Idle seconds; 0 disables cursor hiding.
+kiosk_cursor_hide_timeout: 1
+
+# Idle seconds before display power-off.
+kiosk_display_off_timeout: 600
+
+kiosk_virtual_keyboard: true

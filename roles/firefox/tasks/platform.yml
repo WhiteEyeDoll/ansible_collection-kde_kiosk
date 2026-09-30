@@ -1,0 +1,24 @@
+---
+- name: Require an OS family profile
+  ansible.builtin.assert:
+    that:
+      - >-
+        query('ansible.builtin.fileglob', role_path ~ '/vars/' ~
+        ansible_facts['os_family'] ~ '.yml') | length == 1
+    fail_msg: >-
+      No firefox platform profile for OS family {{ ansible_facts['os_family'] }}.
+
+- name: Load OS family settings
+  ansible.builtin.include_vars:
+    file: "{{ ansible_facts['os_family'] }}.yml"
+
+- name: Require a supported distribution and major version
+  ansible.builtin.assert:
+    that:
+      - >-
+        ansible_facts['distribution_major_version'] | string in
+        firefox_kiosk_platform.supported_distributions.get(ansible_facts['distribution'], [])
+    fail_msg: >-
+      Unsupported firefox platform: {{ ansible_facts['distribution'] }}
+      {{ ansible_facts['distribution_major_version'] }}.
+      Supported distributions and major versions: {{ firefox_kiosk_platform.supported_distributions }}.

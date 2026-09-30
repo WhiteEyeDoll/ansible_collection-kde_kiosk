@@ -1,0 +1,15 @@
+---
+- name: Validate the kiosk platform and account settings
+  ansible.builtin.import_tasks: validate.yml
+
+- name: Install repositories and desktop packages
+  ansible.builtin.include_tasks: "{{ kiosk_platform.package_tasks }}"
+
+- name: Create the kiosk account and session
+  ansible.builtin.import_tasks: session.yml
+
+- name: Configure KDE restrictions
+  ansible.builtin.import_tasks: lockdown.yml
+
+- name: Configure graphical startup
+  ansible.builtin.import_tasks: startup.yml
