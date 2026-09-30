@@ -1,0 +1,6 @@
+// {{ ansible_managed }}
+// Browser chrome is initialized before enterprise policies on a fresh profile.
+user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", {{ firefox_kiosk_touch_tabs | to_json }});
+// Some ESR versions reject sidebar preferences in enterprise policies.
+user_pref("sidebar.verticalTabs", false);
+user_pref("browser.privatebrowsing.autostart", {{ firefox_kiosk_private | to_json }});

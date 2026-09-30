@@ -1,0 +1,6 @@
+// {{ ansible_managed }}
+polkit.addRule(function(action, subject) {
+    if (subject.user === {{ kiosk_user | to_json }}) {
+        return polkit.Result.NO;
+    }
+});

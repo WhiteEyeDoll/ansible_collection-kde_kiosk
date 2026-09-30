@@ -1,0 +1,36 @@
+---
+- name: Stop other running display managers
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+  loop: [gdm.service, sddm.service, lightdm.service]
+  when:
+    - item in ansible_facts['services']
+    - ansible_facts['services'][item]['state'] == 'running'
+
+- name: Read kiosk account information
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ kiosk_user }}"
+
+- name: Check whether the kiosk user manager is running
+  ansible.builtin.stat:
+    path: "/run/user/{{ ansible_facts['getent_passwd'][kiosk_user][1] }}/bus"
+  register: kiosk_user_bus
+
+- name: Reload the kiosk user units when the manager is running
+  ansible.builtin.systemd_service:
+    scope: user
+    daemon_reload: true
+  become: true
+  become_user: "{{ kiosk_user }}"
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ ansible_facts['getent_passwd'][kiosk_user][1] }}"
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ ansible_facts['getent_passwd'][kiosk_user][1] }}/bus"
+  when: kiosk_user_bus.stat.exists
+
+- name: Restart the kiosk graphical session
+  ansible.builtin.systemd_service:
+    name: plasmalogin.service
+    state: restarted
+    daemon_reload: true

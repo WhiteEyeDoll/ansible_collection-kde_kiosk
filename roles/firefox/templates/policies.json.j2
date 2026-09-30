@@ -1,0 +1,31 @@
+{% set policies = {
+  'Homepage': {'URL': firefox_kiosk_urls[0], 'Additional': firefox_kiosk_urls[1:], 'Locked': true, 'StartPage': 'homepage-locked'},
+  'OverrideFirstRunPage': '',
+  'OverridePostUpdatePage': '',
+  'DontCheckDefaultBrowser': true,
+  'DisableDeveloperTools': true,
+  'DisableFirefoxAccounts': true,
+  'DisableProfileImport': true,
+  'DisableProfileRefresh': true,
+  'DisableSafeMode': true,
+  'DisableTelemetry': true,
+  'DisableFirefoxStudies': true,
+  'BlockAboutConfig': true,
+  'BlockAboutProfiles': true,
+  'BlockAboutAddons': true,
+  'OfferToSaveLogins': false,
+  'PasswordManagerEnabled': false,
+  'PrintingEnabled': false,
+  'ExtensionSettings': {'*': {'installation_mode': 'blocked'}},
+  'Preferences': {
+    'browser.sessionstore.resume_from_crash': {'Value': false, 'Status': 'locked'},
+    'browser.fullscreen.autohide': {'Value': not firefox_kiosk_touch_tabs, 'Status': 'locked'},
+    'browser.uidensity': {'Value': 2, 'Status': 'locked'},
+    'browser.tabs.allowTabDetach': {'Value': false, 'Status': 'locked'},
+    'full-screen-api.enabled': {'Value': not firefox_kiosk_touch_tabs, 'Status': 'locked'}
+  }
+} %}
+{% if firefox_kiosk_allowed_sites | length > 0 %}
+{% set policies = policies | combine({'WebsiteFilter': {'Block': ['<all_urls>'], 'Exceptions': firefox_kiosk_allowed_sites}}) %}
+{% endif %}
+{{ {'policies': policies | combine(firefox_kiosk_policy_overrides, recursive=true)} | to_nice_json }}

@@ -1,0 +1,30 @@
+---
+kiosk_platform:
+  supported_distributions:
+    AlmaLinux: ['10']
+    RedHat: ['10']
+  package_tasks: platforms/RedHat.yml
+  builder_repository: >-
+    {{ 'codeready-builder-for-rhel-' ~ ansible_facts['distribution_major_version'] ~
+       '-' ~ ansible_facts['architecture'] ~ '-rpms'
+       if ansible_facts['distribution'] == 'RedHat' else 'crb' }}
+  epel_release_package: >-
+    {{ 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-' ~
+       ansible_facts['distribution_major_version'] ~ '.noarch.rpm'
+       if ansible_facts['distribution'] == 'RedHat' else 'epel-release' }}
+  epel_gpg_key: >-
+    https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_facts['distribution_major_version'] }}
+  packages:
+    - acl
+    - plasma-desktop
+    - plasma-workspace
+    - plasma-breeze
+    - breeze-icon-theme
+    - plasma-login-manager
+    - plasma-keyboard
+    - kwin
+    - kscreen
+    - libinput
+    - mesa-dri-drivers
+    - polkit
+    - selinux-policy-extra

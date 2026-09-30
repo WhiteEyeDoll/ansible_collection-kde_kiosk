@@ -1,0 +1,37 @@
+---
+namespace: whiteeyedoll
+name: kde_kiosk
+version: 0.1.0
+readme: README.md
+authors:
+  - Pauli Huttunen
+description: KDE Wayland kiosk provisioning for Linux.
+license:
+  - MIT
+tags:
+  - linux
+  - desktop
+  - kiosk
+dependencies: {}
+build_ignore:
+  - .git
+  - .github
+  - .gitignore
+  - inventory
+  - inventory.yml
+  - .env
+  - .env.*
+  - dist
+  - "*.tar.gz"
+  - "*.raw"
+  - "*.raw.xz"
+  - "*.img"
+  - "*.img.xz"
+  - .agents
+  - .codex
+  - .ansible
+  - .cache
+  - .venv
+  - __pycache__
+  - "*.pyc"
+  - "*.retry"

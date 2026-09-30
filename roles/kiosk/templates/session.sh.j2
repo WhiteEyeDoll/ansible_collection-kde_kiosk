@@ -1,0 +1,12 @@
+#!/bin/sh
+# {{ ansible_managed }}
+set -eu
+if [ "$(id -un)" != {{ kiosk_user | quote }} ]; then
+    echo 'This session is reserved for the kiosk account.' >&2
+    exit 1
+fi
+export XDG_CONFIG_DIRS=/etc/kde-kiosk/xdg:/etc/xdg
+export XDG_CURRENT_DESKTOP=KDE
+export XDG_SESSION_DESKTOP=KDE
+export XDG_SESSION_TYPE=wayland
+exec {{ kiosk_plasma_executable | quote }}

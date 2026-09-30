@@ -1,0 +1,33 @@
+# {{ ansible_managed }}
+[Wayland][$i]
+InputMethod={{ kiosk_keyboard_desktop_file if kiosk_virtual_keyboard else '' }}
+VirtualKeyboardEnabled={{ kiosk_virtual_keyboard | ternary('true', 'false') }}
+
+[Plugins]
+hidecursorEnabled[$i]={{ (kiosk_cursor_hide_timeout | int > 0) | ternary('true', 'false') }}
+
+[Effect-hidecursor][$i]
+InactivityDuration={{ kiosk_cursor_hide_timeout }}
+HideOnTyping=false
+
+[ModifierOnlyShortcuts][$i]
+Meta=
+Alt=
+Control=
+Shift=
+
+[ElectricBorders][$i]
+TopLeft=None
+Top=None
+TopRight=None
+Right=None
+BottomRight=None
+Bottom=None
+BottomLeft=None
+Left=None
+
+[TouchEdges][$i]
+Top=None
+Right=None
+Bottom=None
+Left=None

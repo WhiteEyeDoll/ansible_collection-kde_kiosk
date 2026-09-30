@@ -1,0 +1,32 @@
+---
+- name: Load and validate the distribution profile
+  ansible.builtin.import_tasks: platform.yml
+
+- name: Validate Firefox kiosk inputs
+  ansible.builtin.assert:
+    that:
+      - firefox_kiosk_urls is sequence
+      - firefox_kiosk_urls is not string
+      - firefox_kiosk_urls | length > 0
+      - firefox_kiosk_private is boolean
+      - firefox_kiosk_touch_tabs is boolean
+      - firefox_kiosk_allowed_sites is sequence
+      - firefox_kiosk_allowed_sites is not string
+      - firefox_kiosk_policy_overrides is mapping
+    fail_msg: Set firefox_kiosk_urls to a nonempty list of HTTP(S) URLs and provide valid policy settings.
+
+- name: Validate every startup tab URL
+  ansible.builtin.assert:
+    that:
+      - item is string
+      - item is match('^https?://[^\s]+\Z')
+      - item | ansible.builtin.urlsplit('hostname') | default('', true) | length > 0
+    fail_msg: Every entry in firefox_kiosk_urls must be an HTTP(S) URL.
+  loop: "{{ firefox_kiosk_urls }}"
+
+- name: Validate navigation allowlist entries
+  ansible.builtin.assert:
+    that:
+      - item is string
+      - item | length > 0
+  loop: "{{ firefox_kiosk_allowed_sites }}"

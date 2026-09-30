@@ -1,0 +1,68 @@
+---
+- name: Validate Firefox app inputs
+  ansible.builtin.import_tasks: validate.yml
+
+- name: Install distribution Firefox packages
+  ansible.builtin.include_tasks: "{{ firefox_kiosk_platform.package_tasks }}"
+
+- name: Create the persistent Firefox profile directory
+  ansible.builtin.file:
+    path: "{{ kiosk_home }}/.mozilla/kiosk"
+    state: directory
+    owner: "{{ kiosk_user }}"
+    group: "{{ kiosk_user }}"
+    mode: '0700'
+
+- name: Create the Firefox policy directory
+  ansible.builtin.file:
+    path: "{{ firefox_kiosk_platform.policies_directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create the managed browser chrome directory
+  ansible.builtin.file:
+    path: "{{ kiosk_home }}/.mozilla/kiosk/chrome"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configure touch tab controls for the kiosk profile
+  ansible.builtin.template:
+    src: userChrome.css.j2
+    dest: "{{ kiosk_home }}/.mozilla/kiosk/chrome/userChrome.css"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Kiosk session changed
+
+- name: Configure browser preferences needed before the first window opens
+  ansible.builtin.template:
+    src: user.js.j2
+    dest: "{{ kiosk_home }}/.mozilla/kiosk/user.js"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Kiosk session changed
+
+- name: Install Firefox enterprise policies
+  ansible.builtin.template:
+    src: policies.json.j2
+    dest: "{{ firefox_kiosk_platform.policies_directory }}/policies.json"
+    owner: root
+    group: root
+    mode: '0644'
+    validate: /usr/bin/python3 -m json.tool %s
+  notify: Kiosk session changed
+
+- name: Supply the kiosk application launcher
+  ansible.builtin.template:
+    src: launcher.sh.j2
+    dest: /usr/local/libexec/kde-kiosk-app
+    owner: root
+    group: root
+    mode: '0755'
+    validate: /bin/sh -n %s
+  notify: Kiosk session changed

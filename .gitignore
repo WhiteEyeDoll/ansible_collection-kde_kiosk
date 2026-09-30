@@ -1,0 +1,23 @@
+# Local inventory and credentials
+/inventory/
+/inventory.yml
+/.env
+/.env.*
+
+# Local build output
+/dist/
+*.tar.gz
+*.raw
+*.raw.xz
+*.img
+*.img.xz
+
+# Tool caches and virtual environments
+/.agents/
+/.codex/
+/.ansible/
+/.cache/
+/.venv/
+__pycache__/
+*.pyc
+*.retry

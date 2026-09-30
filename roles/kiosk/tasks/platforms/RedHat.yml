@@ -1,0 +1,50 @@
+---
+- name: Inspect enabled repositories
+  ansible.builtin.command:
+    argv: [dnf, --quiet, repolist, --enabled]
+  environment:
+    LC_ALL: C
+  register: kiosk_enabled_repositories
+  changed_when: false
+  check_mode: false
+
+- name: Install DNF repository tools
+  ansible.builtin.dnf:
+    name: dnf-plugins-core
+    state: present
+
+- name: Enable CRB on AlmaLinux
+  ansible.builtin.command:
+    argv: [dnf, config-manager, --set-enabled, "{{ kiosk_platform.builder_repository }}"]
+  when:
+    - ansible_facts['distribution'] == 'AlmaLinux'
+    - kiosk_enabled_repositories.stdout is not search('(?m)^crb\s')
+  changed_when: true
+
+- name: Enable CodeReady Builder on RHEL
+  ansible.builtin.command:
+    argv: [subscription-manager, repos, --enable, "{{ kiosk_platform.builder_repository }}"]
+  when:
+    - ansible_facts['distribution'] == 'RedHat'
+    - >-
+      kiosk_enabled_repositories.stdout is not
+      search('(?m)^' ~ (kiosk_platform.builder_repository | regex_escape) ~ '\s')
+  changed_when: true
+
+- name: Import the EPEL signing key for the RHEL bootstrap package
+  ansible.builtin.rpm_key:
+    key: "{{ kiosk_platform.epel_gpg_key }}"
+    state: present
+  when: ansible_facts['distribution'] == 'RedHat'
+
+- name: Install EPEL repository definitions
+  ansible.builtin.dnf:
+    name: "{{ kiosk_platform.epel_release_package }}"
+    state: present
+
+- name: Install the Wayland kiosk desktop
+  ansible.builtin.dnf:
+    name: "{{ kiosk_platform.packages }}"
+    state: present
+    update_cache: true
+  notify: Kiosk session changed
